@@ -11,7 +11,6 @@ import torch.optim as optim
 import torchvision.datasets as datasets
 
 from sklearn.metrics import mean_squared_error
-from sklearn.metrics import f1_score
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 
@@ -58,9 +57,11 @@ def test(model, test_loader, criterion):
             predictions.extend(preds.tolist())
 
     test_loss /= len(test_loader.dataset)
+    accuracy = 100.0 * correct / len(test_loader.dataset)
     rmse = mean_squared_error(targets, predictions, squared=False)
 
     print(f"Test Loss: {test_loss:.4f}")
+    print(f"Accuracy: {accuracy}")
     print(f"RMSE: {rmse}")
     print(f"Classification report:")
     print(classification_report(targets, predictions, target_names=["1", "2", "3", "4", "5"]))
@@ -135,7 +136,12 @@ def net(num_classes, device):
         param.requires_grad = False
 
     layer = nn.Sequential(
-        nn.Linear(model.classifier[1].in_features, num_classes, bias=False)
+        nn.BatchNorm1d(model.classifier[1].in_features),
+        nn.Linear(model.classifier[1].in_features, 512, bias=False),
+        nn.ReLU(),
+        nn.BatchNorm1d(512),
+        nn.Dropout(p=0.5, inplace=True),
+        nn.Linear(512, num_classes, bias=False)
     )
 
     model.classifier[1] = layer
@@ -168,6 +174,25 @@ def create_transform(split, image_size):
 
         train_transforms = transforms.Compose([
             transforms.Resize((pretrained_size, pretrained_size)),
+            transforms.RandomGrayscale(p=0.1),
+            transforms.RandomAdjustSharpness(2, p=0.1),
+            transforms.RandomAutocontrast(p=0.1),
+
+            transforms.RandomApply([
+                transforms.ColorJitter(0.5, 0.5, 0.5, 0.5)
+            ], p=0.1),
+
+            transforms.RandomApply([
+                transforms.RandomAffine(degrees=0, translate=(0, 0.02), scale=(0.95, 0.99))
+            ], p=0.1),
+
+            transforms.RandomApply([
+                transforms.RandomChoice([
+                    transforms.RandomRotation((90, 90)),
+                    transforms.RandomRotation((-90, -90)),
+                ])
+            ], p=0.1),
+
             transforms.ToTensor(),
         ])
 
