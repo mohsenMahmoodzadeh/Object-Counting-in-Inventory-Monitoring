@@ -1,0 +1,1 @@
+{"RuleTriggered": 0, "Violations": 0, "Details": {"ratio": {}, "phase": {}, "phase_time": {}, "general": {"DataLoaderIterInitialize": 0.0013649255513454284, "DataLoaderIter": 99.99863507444864}}, "Datapoints": 0, "RuleParameters": ""}
