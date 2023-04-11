@@ -1,73 +1,54 @@
-# Project Overview: Inventory Monitoring at Distribution Centers
+#   Inventory Monitoring at Distribution Centers
 
-Distribution centers often use robots to move objects as a part of their operations. Objects are carried in bins which can contain multiple objects. In this project, you will have to build a model that can count the number of objects in each bin. A system like this can be used to track inventory and make sure that delivery consignments have the correct number of items.
+In this project, we'll work on how to count the objects in bins. Our goal is to create a pipeline with AWS tools.
 
-To build this project you will use AWS SageMaker and good machine learning engineering practices to fetch data from a database, preprocess it, and then train a machine learning model. This project will serve as a demonstration of end-to-end machine learning engineering skills that you have learned as a part of this nanodegree.
+## Project Summary
+Our work is organized into 5 categories:
 
-# How it Works
+1. Collect data from the main resource and organize into an S3 bucket.
+2. Apply an exploratory data analysis(EDA) on the dataset using SageMaker Studio.
+3. Design a model and tune its hyper parameters using SageMaker.
+4. Train and evaluate the model using SageMaker.
+5. Monitor the resource management of the model using SageMaker Debugger.
 
-To complete this project we will be using the <a href="https://registry.opendata.aws/amazon-bin-imagery/" target="_blank">Amazon Bin Image Dataset</a>. The dataset contains 500,000 images of bins containing one or more objects. For each image there is a metadata file containing information about the image like the number of objects, it's dimension and the type of object. For this task, we will try to classify the number of objects in each bin.
 
-To perform the classification you can use a model type and architecture of your choice. For instance you could use a pre-trained convolutional neural network, or you could create your own neural network architecture. However, you will need to train your model using SageMaker.
+## Environment
 
-Once you have trained your model you can attempt some of the Standout Suggestion to get the extra practice and to turn your project into a portfolio piece.
+We used an AWS SageMaker instance ```ml.t3.medium``` type with the following configurations:
+- two virtual CPUs
+- four GiB memory
 
-# Pipeline
+And the main software pre-requisites for the project are:
+- Python 3.8
+- Pytorch: 1.12
 
-To finish this project, you will have to perform the following tasks:
+## Initial setup
 
-1. Upload Training Data: First you will have to upload the training data to an S3 bucket.
-1. Model Training Script: Once you have done that, you will have to write a script to train a model on that dataset.
-1. Train in SageMaker: Finally, you will have to use SageMaker to run that training script and train your model
+1. Clone the repository.
+2. Run [sagemaker.ipynb](./starter/sagemaker.ipynb) cells in order and follow its instructions!
 
-Here are the tasks you have to do in more detail:
+## Data
 
-## Setup AWS
-To build this project, you wlll have to use AWS through your classroom. Below are your main steps:
-- Open AWS through the classroom on the left panel (**Open AWS Gateway**)
-- Open SageMaker Studio and create a folder for your project
+We use Amazon Image Bin Dataset.  The dataset contains 536,435 bin JPEG images and metadata from bins of a pod in an operating Amazon Fulfillment Center. The bin images in this dataset are captured as robot units carry pods as part of normal Amazon Fulfillment Center operations.  We apply an EDA on the dataset to know it better. All the files and their metadata are organized in [list](./starter/data/list) and [metadatalist](./starter/data/metadatalist).
 
-## Download the Starter Files
-We have provided a project template and some helpful starter files for this project. You can clone the Github Repo.
-- Clone of download starter files from Github
-- Upload starter files to your workspace
+You can see a sample(with 5 objects in it) of the dataset in the following picture:
 
-## Preparing Data
-To build this project you will have to use the [Amazon Bin Images Dataset](https://registry.opendata.aws/amazon-bin-imagery/)
-- Download the dataset: Since this is a large dataset, you have been provided with some code to download a small subset of that data. You are encouraged to use this subset to prevent any excess SageMaker credit usage.
-- Preprocess and clean the files (if needed)
-- Upload them to an S3 bucket so that SageMaker can use them for training
-- OPTIONAL: Verify that the data has been uploaded correctly to the right bucket using the AWS S3 CLI or the S3 UI
+![data sample](./starter/images/sample.jpeg "a data sample with 5 objects")
 
-## Starter Code
-Familiarize yourself with the following starter code
-- `sagemaker.ipynb`
-- `train.py`
+We used [file_list.json](./starter/file_list.json), a subset which is a well-balanced representative subset of the whole dataset.
 
-## Create a Training Script
-Complete the TODO's in the `train.py` script
-- Read and Preprocess data: Before training your model, you will need to read, load and preprocess your training, testing and validation data
-- Train your Model: You can choose any model type or architecture for this project
+## Pipeline
 
-## Train using SageMaker
-Complete the TODO's in the `sagemaker.ipynb` notebook
-- Install necessary dependencies
-- Setup the training estimator
-- Submit the job
+After splitting our dataset into [train](./starter/data/train.json), [validation](./starter/data/valid.json) and [test](./starter/data/test.json) splits, we can store them into S3 bucket as shown below:
 
-## Final Steps
-An important part of your project is creating a `README` file that describes the project, explains how to set up and run the code, and describes your results. We've included a template in the starter files (that you downloaded earlier), with `TODOs` for each of the things you should include.
-- Complete the `README` file
+![data splits in s3](./starter/images/data_splits_in_s3.png "data splits in s3")
 
-# Standout Suggestions
+You can use [hpo.py](./starter/hpo.py) and [hpo_improved.py](./starter/hpo_improved.py) for hyperparameter tuning for benchmark and refined model, respectively. This point is similar for [train.py](./starter/train.py) and [train_improved.py](./starter/train_improved.py) for training and evaluation.
 
-Standout suggestions are some recommendations to help you take your project further and turn it into a nice portfolio piece. If you have been having a good time working on this project and want some additional practice, then we recommend that you try them. However, do not that these suggestions are all optional and you can skip any (or all) of them and submit the project in the next page.
+And finally, you can use [sagemaker.ipynb](./starter/sagemaker.ipynb) as an orchestrator for all the mentioned above scripts to create the pipeline in SageMaker.
 
-Here are some of suggestions to improve your project:
+## Profiler Reports
+The reports of the SageMaker profiler is organized in [benchmark profiler reports](./starter/ProfilerReports/benchmark) and [improved profiler reports](./starter/ProfilerReports/improved) for benchmark and improved models, respectively.
 
-* **Model Deployment:** Once you have trained your model, can you deploy your model to a SageMaker endpoint and then query it with an image to get a prediction?
-* **Hyperparameter Tuning**: To improve the performance of your model, can you use SageMaker’s Hyperparameter Tuning to search through a hyperparameter space and get the value of the best hyperparameters?
-* **Reduce Costs:** To reduce the cost of your machine learning engineering pipeline, can you do a cost analysis and use spot instances to train your model?
-* **Multi-Instance Training:** Can you train the same model, but this time distribute your training workload across multiple instances?
-
-Once you have completed the standout suggestions, make sure that you explain what you did and how you did it in the `README`. This way the reviewers will look out for it and can give you helpful tips and suggestions!
+## Technical Reports
+You can read about the introduction and development phase of the project in [proposal.pdf](./starter/propsoal.pdf) and [report.pdf](./starter/report.pdf).
