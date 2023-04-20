@@ -2,6 +2,8 @@
 
 In this project, we'll work on how to count the objects in bins. Our goal is to create a pipeline with AWS tools.
 
+**Note**: This repository relates to AWS Machine Learning Engineer nanodegree provided by Udacity.
+
 ## Project Summary
 Our work is organized into 5 categories:
 
